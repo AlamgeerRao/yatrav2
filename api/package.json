@@ -1,0 +1,16 @@
+{
+  "name": "punjab-heritage-api",
+  "version": "1.0.0",
+  "description": "Azure Functions API for Punjab Heritage Journeys",
+  "main": "src/functions/*.js",
+  "scripts": {
+    "start": "func start"
+  },
+  "engines": {
+    "node": ">=22.0.0 <23.0.0"
+  },
+  "dependencies": {
+    "@azure/cosmos": "^4.0.0",
+    "@azure/functions": "^4.6.0"
+  }
+}
