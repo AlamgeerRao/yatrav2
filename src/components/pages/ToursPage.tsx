@@ -15,7 +15,7 @@ export function ToursPage({ locale }: { locale: Locale }) {
       <section className="pb-20 md:pb-28 -mt-8">
         <div className="mx-auto max-w-7xl px-5 lg:px-8">
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-7">
-            {packages.map((p, i) => <PackageCard key={p.slug} pkg={p} index={i} />)}
+            {packages.map((p, i) => <PackageCard key={p.slug} pkg={p} index={i} showPrice={false} />)}
           </div>
         </div>
       </section>

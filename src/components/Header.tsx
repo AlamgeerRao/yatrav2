@@ -90,7 +90,9 @@ export function Header() {
                 <Link
                   key={n.to}
                   to={n.to}
-                  className="text-[13px] xl:text-sm font-medium text-white bg-accent hover:bg-accent/90 px-4 py-1.5 rounded-full transition-colors whitespace-nowrap"
+                  className="text-[13px] xl:text-sm font-medium text-accent border border-accent hover:bg-accent hover:text-white px-4 py-1.5 rounded-full transition-colors whitespace-nowrap"
+                  activeProps={{ className: "bg-accent text-white border-accent hover:text-white" }}
+                  activeOptions={{ exact: n.exact }}
                 >
                   {n.label}
                 </Link>

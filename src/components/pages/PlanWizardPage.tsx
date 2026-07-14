@@ -62,12 +62,22 @@ const INITIAL: WizardState = {
 };
 
 
+// If arriving from a package card's "Build your itinerary" button
+// (?package=slug), pre-select that package instead of the generic default.
+function initialStateFromQuery(): WizardState {
+  if (typeof window === "undefined") return INITIAL;
+  const slug = new URLSearchParams(window.location.search).get("package");
+  const pkg = slug ? ENGLISH_PACKAGES.find((p) => p.slug === slug) : undefined;
+  if (!pkg) return INITIAL;
+  return { ...INITIAL, yatra: pkg.slug, nights: pkg.suggestedNights };
+}
+
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export function PlanWizardPage({ locale }: { locale: Locale }) {
   const t = PLAN[locale];
   const [step, setStep] = useState(0);
-  const [form, setForm] = useState<WizardState>(INITIAL);
+  const [form, setForm] = useState<WizardState>(initialStateFromQuery);
   const [submitting, setSubmitting] = useState(false);
   const [ref, setRef] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
