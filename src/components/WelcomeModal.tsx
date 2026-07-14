@@ -63,7 +63,7 @@ export function WelcomeModal() {
 
   return (
     <Dialog open={open} onOpenChange={(v) => { if (!v) { markSeen(); setOpen(false); } }}>
-      <DialogContent className="max-w-md rounded-2xl">
+      <DialogContent className="max-w-md rounded-2xl max-h-[88svh] overflow-y-auto gap-4">
         <DialogHeader>
           <DialogTitle className="font-display text-2xl text-primary">Welcome · Bienvenue</DialogTitle>
           <DialogDescription className="text-sm leading-relaxed">
