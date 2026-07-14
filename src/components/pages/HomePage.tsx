@@ -1,6 +1,5 @@
-import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { ArrowRight, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SectionHeading } from "@/components/SectionHeading";
@@ -12,35 +11,16 @@ import { getPackages } from "@/lib/packages-locale";
 import { whatsappLink } from "@/lib/site";
 import { HOME } from "@/lib/content/home";
 import { localizedPath, type Locale } from "@/lib/i18n";
-import type { TourPackage } from "@/lib/packages";
 import heroImg from "@/assets/hero-kartarpur.jpg";
 import roots from "@/assets/roots.jpg";
-
-type FilterKey = "all" | "short" | "weekPlus" | "custom";
-
-const FILTER_TESTS: Record<FilterKey, (p: TourPackage) => boolean> = {
-  all: () => true,
-  short: (p) => p.duration.trim().startsWith("3"),
-  weekPlus: (p) => p.duration.trim().startsWith("7"),
-  custom: (p) => !/^\d/.test(p.duration.trim()),
-};
 
 export function HomePage({ locale }: { locale: Locale }) {
   const t = HOME[locale];
   const packages = getPackages(locale);
-  const [filter, setFilter] = useState<FilterKey>("all");
-  const filteredPackages = packages.filter(FILTER_TESTS[filter]);
 
   const contactPath = localizedPath(locale, "/contact");
   const aboutPath = localizedPath(locale, "/about");
   const planPath = localizedPath(locale, "/plan");
-
-  const filterChips: { key: FilterKey; label: string }[] = [
-    { key: "all", label: t.packagesPreview.filters.all },
-    { key: "short", label: t.packagesPreview.filters.short },
-    { key: "weekPlus", label: t.packagesPreview.filters.weekPlus },
-    { key: "custom", label: t.packagesPreview.filters.custom },
-  ];
 
   return (
     <>
@@ -77,39 +57,20 @@ export function HomePage({ locale }: { locale: Locale }) {
         </div>
       </section>
 
-      {/* PACKAGES — the primary content of the homepage, shown in full with quick filter chips */}
+      {/* PACKAGES — the primary content of the homepage, shown in full */}
       <section id="packages" className="py-14 md:py-20 scroll-mt-16">
         <div className="mx-auto max-w-7xl px-5 lg:px-8">
           <SectionHeading eyebrow={t.packagesPreview.eyebrow} title={t.packagesPreview.title} description={t.packagesPreview.description} />
 
-          <div className="mt-8 flex flex-wrap justify-center gap-2">
-            {filterChips.map((c) => (
-              <button
-                key={c.key}
-                onClick={() => setFilter(c.key)}
-                className={`px-4 py-2 rounded-full text-sm font-medium border transition-colors whitespace-nowrap ${
-                  filter === c.key
-                    ? "bg-primary text-primary-foreground border-primary"
-                    : "bg-card text-primary/80 border-border hover:border-accent hover:text-accent"
-                }`}
-              >
-                {c.label}
-              </button>
-            ))}
-          </div>
-
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={filter}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.25 }}
-              className="mt-10 grid md:grid-cols-2 lg:grid-cols-3 gap-7"
-            >
-              {filteredPackages.map((p, i) => <PackageCard key={p.slug} pkg={p} index={i} />)}
-            </motion.div>
-          </AnimatePresence>
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.4 }}
+            className="mt-10 grid md:grid-cols-2 lg:grid-cols-3 gap-7"
+          >
+            {packages.map((p, i) => <PackageCard key={p.slug} pkg={p} index={i} showPrice={false} />)}
+          </motion.div>
 
           <div className="mt-12 text-center">
             <Button asChild size="lg" variant="outline" className="rounded-full border-primary text-primary hover:bg-primary hover:text-primary-foreground">

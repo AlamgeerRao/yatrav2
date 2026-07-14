@@ -9,7 +9,7 @@ import type { BlogPost } from "@/lib/posts";
 export function BlogDetailPage({ locale, post, related }: { locale: Locale; post: BlogPost; related: BlogPost[] }) {
   const t = BLOG_DETAIL[locale];
   const blogPath = locale === "fr" ? "/fr/blog" : "/blog";
-  const toursPath = locale === "fr" ? "/fr/tours" : "/tours";
+  const toursPath = locale === "fr" ? "/fr#packages" : "/#packages";
 
   return (
     <>

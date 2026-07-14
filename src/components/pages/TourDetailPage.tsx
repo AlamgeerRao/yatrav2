@@ -10,11 +10,12 @@ import { whatsappLink } from "@/lib/site";
 import { TOUR_DETAIL } from "@/lib/content/tour-detail";
 import { displayDuration } from "@/lib/packages-locale";
 import type { Locale } from "@/lib/i18n";
+import { localizedPath } from "@/lib/i18n";
 import type { TourPackage } from "@/lib/packages";
 
 export function TourDetailPage({ locale, pkg, related }: { locale: Locale; pkg: TourPackage; related: TourPackage[] }) {
   const t = TOUR_DETAIL[locale];
-  const toursPath = locale === "fr" ? "/fr/tours" : "/tours";
+  const toursPath = `${localizedPath(locale, "/")}#packages`;
 
   return (
     <>

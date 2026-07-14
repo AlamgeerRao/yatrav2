@@ -1,13 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { ToursPage } from "@/components/pages/ToursPage";
-import { TOURS_LIST } from "@/lib/content/tours-list";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 
+// The standalone Tours listing is folded into the Home page's packages
+// section — redirect any direct links/bookmarks there instead of 404ing.
 export const Route = createFileRoute("/tours")({
-  head: () => ({
-    meta: [
-      { title: TOURS_LIST.en.meta.title },
-      { name: "description", content: TOURS_LIST.en.meta.description },
-    ],
-  }),
-  component: () => <ToursPage locale="en" />,
+  beforeLoad: () => {
+    throw redirect({ to: "/", hash: "packages" });
+  },
 });

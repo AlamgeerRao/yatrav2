@@ -12,7 +12,7 @@ import { PreferencesSwitcher } from "@/components/PreferencesSwitcher";
 import { SITE } from "@/lib/site";
 import { localizedPath, useLocale, UI } from "@/lib/i18n";
 
-const primaryPaths = ["/", "/tours", "/plan", "/about", "/contact"] as const;
+const primaryPaths = ["/", "/plan", "/about", "/contact"] as const;
 const morePaths = ["/visa", "/gallery", "/blog"] as const;
 
 export function Header() {
@@ -22,7 +22,7 @@ export function Header() {
   const locale = useLocale();
   const t = UI[locale];
 
-  const primaryLabels = [t.nav.home, t.nav.tours, locale === "fr" ? "Planifier" : "Plan Yatra", t.nav.about, t.nav.contact];
+  const primaryLabels = [t.nav.home, locale === "fr" ? "Planifier" : "Plan Yatra", t.nav.about, t.nav.contact];
   const moreLabels = [t.nav.visa, t.nav.gallery, t.nav.blog];
 
   const primaryNav = primaryPaths.map((p, i) => ({ to: localizedPath(locale, p), label: primaryLabels[i], exact: p === "/" }));
@@ -84,17 +84,17 @@ export function Header() {
           </Link>
 
           {/* Desktop nav — hidden below lg, shrinks font at xl to avoid wrapping.
-              All items share one style: readable by default (a small text
-              shadow keeps them legible over any hero photo), and only the
-              current page gets the colored/bold highlight — no item is
-              ever permanently styled as if it were a button or the active page. */}
-          <nav className="hidden lg:flex items-center gap-5 xl:gap-7 min-w-0 flex-1 justify-center">
+              All items share one readable default style (a small text shadow
+              keeps them legible over any hero photo); the current page gets
+              a solid filled pill, the same "selected" look used elsewhere
+              on the site (e.g. the package filter chips). */}
+          <nav className="hidden lg:flex items-center gap-1 xl:gap-2 min-w-0 flex-1 justify-center">
             {primaryNav.map((n) => (
               <Link
                 key={n.to}
                 to={n.to}
-                className="text-[13px] xl:text-sm font-medium text-primary [text-shadow:0_1px_3px_rgba(0,0,0,0.25)] hover:text-accent transition-colors whitespace-nowrap"
-                activeProps={{ className: "text-accent font-semibold" }}
+                className="text-[13px] xl:text-sm font-medium text-primary [text-shadow:0_1px_3px_rgba(0,0,0,0.25)] hover:text-accent transition-colors whitespace-nowrap px-3 py-1.5 rounded-full"
+                activeProps={{ className: "!text-primary-foreground [text-shadow:none] bg-primary hover:!text-primary-foreground" }}
                 activeOptions={{ exact: n.exact }}
               >
                 {n.label}
@@ -102,7 +102,7 @@ export function Header() {
             ))}
 
             <DropdownMenu>
-              <DropdownMenuTrigger className="flex items-center gap-1 text-[13px] xl:text-sm font-medium text-primary [text-shadow:0_1px_3px_rgba(0,0,0,0.25)] hover:text-accent transition-colors whitespace-nowrap outline-none">
+              <DropdownMenuTrigger className="flex items-center gap-1 text-[13px] xl:text-sm font-medium text-primary [text-shadow:0_1px_3px_rgba(0,0,0,0.25)] hover:text-accent transition-colors whitespace-nowrap px-3 py-1.5 outline-none">
                 {t.nav.more} <ChevronDown className="size-3.5" />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="center" className="min-w-[10rem]">
@@ -160,8 +160,8 @@ export function Header() {
                 key={n.to}
                 to={n.to}
                 onClick={() => setOpen(false)}
-                className="py-2.5 text-primary/90 hover:text-accent whitespace-nowrap"
-                activeProps={{ className: "text-accent font-semibold" }}
+                className="self-start py-2.5 px-3 rounded-full text-primary/90 hover:text-accent whitespace-nowrap"
+                activeProps={{ className: "!text-primary-foreground bg-primary hover:!text-primary-foreground font-medium" }}
                 activeOptions={{ exact: n.exact }}
               >
                 {n.label}

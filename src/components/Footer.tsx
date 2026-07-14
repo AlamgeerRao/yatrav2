@@ -29,7 +29,7 @@ export function Footer() {
         <div>
           <h4 className="text-gold text-sm uppercase tracking-[0.2em] mb-4">{t.footer.explore}</h4>
           <ul className="space-y-2.5 text-sm text-cream/80">
-            <li><Link to={p("/tours")} className="hover:text-gold">{t.allTours}</Link></li>
+            <li><Link to={`${p("/")}#packages`} className="hover:text-gold">{t.allTours}</Link></li>
             <li><Link to={p("/about")} className="hover:text-gold">{t.nav.about}</Link></li>
             <li><Link to={p("/visa")} className="hover:text-gold">{t.nav.visa}</Link></li>
             <li><Link to={p("/gallery")} className="hover:text-gold">{t.nav.gallery}</Link></li>

@@ -10,7 +10,6 @@ interface HomeContent {
   };
   packagesPreview: {
     eyebrow: string; title: string; description: string;
-    filters: { all: string; short: string; weekPlus: string; custom: string };
     customCtaLabel: string;
   };
   story: {
@@ -58,7 +57,6 @@ export const HOME: Record<Locale, HomeContent> = {
       eyebrow: "Curated journeys",
       title: "Find your Yatra",
       description: "From a 3-day Kartarpur darshan to a private 14-day roots journey — every package below is ready to book.",
-      filters: { all: "All packages", short: "3–4 days", weekPlus: "7+ days", custom: "Custom & private" },
       customCtaLabel: "Can't find the right fit? Build a custom Yatra",
     },
     story: {
@@ -116,7 +114,6 @@ export const HOME: Record<Locale, HomeContent> = {
       eyebrow: "Voyages conçus sur mesure",
       title: "Trouvez votre Yatra",
       description: "D'un darshan de 3 jours à Kartarpur à un voyage privé de 14 jours sur les traces de vos racines — chaque circuit ci-dessous est prêt à réserver.",
-      filters: { all: "Tous les circuits", short: "3–4 jours", weekPlus: "7 jours et plus", custom: "Sur mesure & privé" },
       customCtaLabel: "Vous ne trouvez pas votre bonheur ? Créez votre Yatra sur mesure",
     },
     story: {
