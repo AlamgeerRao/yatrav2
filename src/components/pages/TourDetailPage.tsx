@@ -8,6 +8,7 @@ import { PackageCard } from "@/components/PackageCard";
 import { PriceTag } from "@/components/PriceTag";
 import { whatsappLink } from "@/lib/site";
 import { TOUR_DETAIL } from "@/lib/content/tour-detail";
+import { displayDuration } from "@/lib/packages-locale";
 import type { Locale } from "@/lib/i18n";
 import type { TourPackage } from "@/lib/packages";
 
@@ -27,7 +28,7 @@ export function TourDetailPage({ locale, pkg, related }: { locale: Locale; pkg: 
             <h1 className="font-display text-5xl md:text-6xl lg:text-7xl mt-4 leading-[1.02] text-balance">{pkg.name}</h1>
             <p className="mt-4 text-cream/85 text-lg max-w-2xl">{pkg.tagline}</p>
             <div className="mt-6 flex flex-wrap gap-2 text-sm">
-              <Badge>{pkg.duration}</Badge>
+              <Badge>{displayDuration(pkg, locale)}</Badge>
               <Badge>{pkg.comfort}</Badge>
               <Badge><PriceTag pkg={pkg} /></Badge>
             </div>
@@ -126,7 +127,7 @@ export function TourDetailPage({ locale, pkg, related }: { locale: Locale; pkg: 
             <div className="rounded-3xl bg-card border border-border p-7 shadow-[var(--shadow-elevated)]">
               <div className="text-[11px] uppercase tracking-[0.25em] text-muted-foreground">{t.sidebar.startingFrom}</div>
               <div className="font-display text-3xl text-primary mt-1"><PriceTag pkg={pkg} /></div>
-              <div className="text-sm text-muted-foreground mt-1">{pkg.duration} · {pkg.target}</div>
+              <div className="text-sm text-muted-foreground mt-1">{displayDuration(pkg, locale)} · {pkg.target}</div>
               <div className="mt-6"><InquiryForm defaultPackage={pkg.slug} locale={locale} /></div>
               <a href={whatsappLink(t.sidebar.whatsappMsg(pkg.name))} target="_blank" rel="noreferrer" className="mt-3 w-full inline-flex items-center justify-center gap-2 rounded-full border border-[oklch(0.62_0.18_150)] text-[oklch(0.45_0.14_150)] py-3 text-sm font-medium hover:bg-[oklch(0.62_0.18_150)] hover:text-white transition">
                 <MessageCircle className="size-4" /> {t.sidebar.whatsapp}

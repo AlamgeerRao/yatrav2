@@ -83,34 +83,26 @@ export function Header() {
             </span>
           </Link>
 
-          {/* Desktop nav — hidden below lg, shrinks font at xl to avoid wrapping */}
+          {/* Desktop nav — hidden below lg, shrinks font at xl to avoid wrapping.
+              All items share one style: readable by default (a small text
+              shadow keeps them legible over any hero photo), and only the
+              current page gets the colored/bold highlight — no item is
+              ever permanently styled as if it were a button or the active page. */}
           <nav className="hidden lg:flex items-center gap-5 xl:gap-7 min-w-0 flex-1 justify-center">
             {primaryNav.map((n) => (
-              n.label === "Plan Yatra" || n.label === "Planifier" ? (
-                <Link
-                  key={n.to}
-                  to={n.to}
-                  className="text-[13px] xl:text-sm font-medium text-accent border border-accent hover:bg-accent hover:text-white px-4 py-1.5 rounded-full transition-colors whitespace-nowrap"
-                  activeProps={{ className: "bg-accent text-white border-accent hover:text-white" }}
-                  activeOptions={{ exact: n.exact }}
-                >
-                  {n.label}
-                </Link>
-              ) : (
-                <Link
-                  key={n.to}
-                  to={n.to}
-                  className="text-[13px] xl:text-sm text-primary/80 hover:text-accent transition-colors whitespace-nowrap"
-                  activeProps={{ className: "text-accent font-semibold" }}
-                  activeOptions={{ exact: n.exact }}
-                >
-                  {n.label}
-                </Link>
-              )
+              <Link
+                key={n.to}
+                to={n.to}
+                className="text-[13px] xl:text-sm font-medium text-primary [text-shadow:0_1px_3px_rgba(0,0,0,0.25)] hover:text-accent transition-colors whitespace-nowrap"
+                activeProps={{ className: "text-accent font-semibold" }}
+                activeOptions={{ exact: n.exact }}
+              >
+                {n.label}
+              </Link>
             ))}
 
             <DropdownMenu>
-              <DropdownMenuTrigger className="flex items-center gap-1 text-[13px] xl:text-sm text-primary/80 hover:text-accent transition-colors whitespace-nowrap outline-none">
+              <DropdownMenuTrigger className="flex items-center gap-1 text-[13px] xl:text-sm font-medium text-primary [text-shadow:0_1px_3px_rgba(0,0,0,0.25)] hover:text-accent transition-colors whitespace-nowrap outline-none">
                 {t.nav.more} <ChevronDown className="size-3.5" />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="center" className="min-w-[10rem]">

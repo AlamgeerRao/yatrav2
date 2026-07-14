@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { PriceTag } from "@/components/PriceTag";
 import { whatsappLink } from "@/lib/site";
 import { useLocale, localizedPath, UI } from "@/lib/i18n";
+import { displayDuration } from "@/lib/packages-locale";
 import type { TourPackage } from "@/lib/packages";
 
 export function PackageCard({ pkg, index = 0, showPrice = true }: { pkg: TourPackage; index?: number; showPrice?: boolean }) {
@@ -34,7 +35,7 @@ export function PackageCard({ pkg, index = 0, showPrice = true }: { pkg: TourPac
         />
         <div className="absolute inset-0 bg-gradient-to-t from-primary/80 via-primary/10 to-transparent" />
         <div className="absolute top-4 left-4 px-3 py-1 rounded-full glass-panel text-[11px] uppercase tracking-[0.18em] text-primary font-medium">
-          {pkg.duration}
+          {displayDuration(pkg, locale)}
         </div>
         <div className="absolute bottom-4 left-5 right-5 text-cream">
           <h3 className="font-display text-2xl md:text-3xl leading-tight">{pkg.name}</h3>
@@ -68,7 +69,7 @@ export function PackageCard({ pkg, index = 0, showPrice = true }: { pkg: TourPac
           )}
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <Clock className="size-3.5" />
-            {pkg.duration}
+            {displayDuration(pkg, locale)}
           </div>
         </div>
 
