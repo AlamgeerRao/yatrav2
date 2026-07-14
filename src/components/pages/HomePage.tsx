@@ -18,7 +18,6 @@ export function HomePage({ locale }: { locale: Locale }) {
   const t = HOME[locale];
   const packages = getPackages(locale);
 
-  const contactPath = localizedPath(locale, "/contact");
   const aboutPath = localizedPath(locale, "/about");
   const planPath = localizedPath(locale, "/plan");
 
@@ -38,22 +37,10 @@ export function HomePage({ locale }: { locale: Locale }) {
               {t.hero.titlePrefix}<em className="not-italic text-gold">{t.hero.titleEm}</em>{t.hero.titleSuffix}
             </h1>
             <p className="mt-5 text-cream/85 text-base md:text-xl max-w-2xl text-pretty">{t.hero.description}</p>
-            <div className="mt-6 flex flex-wrap gap-3">
-              <Button asChild size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground rounded-full px-7 h-12 text-base shadow-[var(--shadow-gold)]">
-                <a href="#packages">{t.hero.exploreTours} <ArrowRight className="size-4 ml-1" /></a>
-              </Button>
-              <Button asChild size="lg" variant="outline" className="rounded-full h-12 px-7 border-cream/40 text-cream bg-cream/5 hover:bg-cream hover:text-primary backdrop-blur">
-                <Link to={contactPath}>{t.hero.bookConsultation}</Link>
-              </Button>
-            </div>
           </motion.div>
-        </div>
-      </section>
-
-      {/* TRUST STRIP — condensed, no heavy heading, just quick reassurance before browsing */}
-      <section className="py-8 md:py-10 bg-cream border-b border-border/50">
-        <div className="mx-auto max-w-7xl px-5 lg:px-8">
-          <TrustBadges />
+          <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.15 }} className="mt-8">
+            <TrustBadges />
+          </motion.div>
         </div>
       </section>
 
