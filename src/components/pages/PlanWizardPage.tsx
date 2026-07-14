@@ -44,7 +44,6 @@ const CURRENT_YEAR  = NOW.getFullYear();
 const CURRENT_MONTH = NOW.getMonth();
 
 const YEARS = [CURRENT_YEAR, CURRENT_YEAR + 1, CURRENT_YEAR + 2].map(String);
-const NIGHT_OPTIONS = [3, 4, 5, 7, 8, 10, 12, 14];
 const YATRA_NIGHTS: Record<YatraType, number> = { kartarpur: 3, nankana: 3, panja: 3, full: 7, custom: 10 };
 const YATRA_VALUES: YatraType[] = ["kartarpur", "nankana", "panja", "full", "custom"];
 
@@ -347,22 +346,6 @@ function StepYatra({ t, locale, form, set }: StepProps) {
           </select>
         </Field>
       </div>
-      <Field label={t.stepYatra.duration}>
-        <div className="flex flex-wrap gap-2">
-          {NIGHT_OPTIONS.map((n) => (
-            <button
-              key={n}
-              type="button"
-              onClick={() => set("nights", n)}
-              className={`px-4 py-2 rounded-full text-sm border-2 transition-all ${
-                form.nights === n ? "border-accent bg-accent text-white" : "border-border hover:border-accent/50"
-              }`}
-            >
-              {n}
-            </button>
-          ))}
-        </div>
-      </Field>
     </div>
   );
 }
