@@ -38,10 +38,33 @@ export function Header() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // Lock background scroll while the mobile menu is open, so the hero
+  // underneath can't be dragged/scrolled behind the (now opaque) panel.
+  useEffect(() => {
+    document.body.style.overflow = open ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [open]);
+
+  // Let Escape close the mobile menu, same as tapping the X.
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
+
   return (
     <header
       className={`fixed top-0 inset-x-0 z-40 transition-all duration-300 ${
-        scrolled ? "glass-panel shadow-[var(--shadow-soft)]" : "bg-transparent"
+        open
+          ? "bg-background shadow-[var(--shadow-soft)]"
+          : scrolled
+            ? "glass-panel shadow-[var(--shadow-soft)]"
+            : "bg-transparent"
       }`}
     >
       <div className="mx-auto max-w-7xl px-5 lg:px-8">
@@ -124,10 +147,11 @@ export function Header() {
         </div>
       </div>
 
-      {/* Mobile menu */}
+      {/* Mobile menu — solid, fixed, full-height overlay (not translucent) so
+          the hero image/text behind it can never show through or overlap. */}
       {open && (
-        <div className="lg:hidden glass-panel border-t border-border max-h-[calc(100svh-4rem)] overflow-y-auto">
-          <div className="px-5 py-4 flex flex-col gap-1">
+        <div className="lg:hidden fixed inset-x-0 top-16 bottom-0 z-40 bg-background overflow-y-auto border-t border-border">
+          <div className="px-5 py-4 flex flex-col gap-1 min-h-full">
 
             {/* Preferences at top of mobile menu — full width, clearly labelled */}
             <div className="mb-3 pb-3 border-b border-border/60">
