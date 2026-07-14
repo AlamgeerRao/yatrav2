@@ -22,10 +22,10 @@ export function TrustBadges() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: i * 0.05, duration: 0.5 }}
-          className="flex flex-col items-center text-center gap-2 p-4 rounded-2xl bg-card/60 border border-border/60"
+          className="flex flex-col items-center text-center gap-1.5 p-3 rounded-xl bg-card/60 border border-border/60"
         >
-          <it.icon className="size-6 text-accent" />
-          <span className="text-xs md:text-sm text-primary/80 leading-tight">{it.label}</span>
+          <it.icon className="size-5 text-accent" />
+          <span className="text-xs md:text-sm font-semibold text-primary leading-tight">{it.label}</span>
         </motion.div>
       ))}
     </div>
