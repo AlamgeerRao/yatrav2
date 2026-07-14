@@ -8,7 +8,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { calculateQuote, ADDONS_GBP } from "@/lib/quote";
-import type { YatraType, HotelStar, RoomType } from "@/lib/quote";
+import type { HotelStar, RoomType } from "@/lib/quote";
 import { useCurrency, useExchangeRates, formatConverted } from "@/lib/currency";
 import { whatsappLink } from "@/lib/site";
 import { apiUrl } from "@/lib/api";
@@ -16,6 +16,8 @@ import { COUNTRIES, MONTHS } from "@/components/forms/form-utils";
 import { MONTH_LABELS } from "@/lib/months";
 import { PLAN, type PlanContent } from "@/lib/content/plan";
 import { localizedPath, type Locale } from "@/lib/i18n";
+import { getPackages, getPackage } from "@/lib/packages-locale";
+import { packages as ENGLISH_PACKAGES } from "@/lib/packages";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -23,7 +25,8 @@ interface WizardState {
   country: string;
   departureCity: string;
   travellers: number;
-  yatra: YatraType | "";
+  /** Selected package slug (see packages.ts), or "" if none chosen yet. */
+  yatra: string;
   travelMonth: string;
   travelYear: string;
   nights: number | "";
@@ -44,12 +47,14 @@ const CURRENT_YEAR  = NOW.getFullYear();
 const CURRENT_MONTH = NOW.getMonth();
 
 const YEARS = [CURRENT_YEAR, CURRENT_YEAR + 1, CURRENT_YEAR + 2].map(String);
-const YATRA_NIGHTS: Record<YatraType, number> = { kartarpur: 3, nankana: 3, panja: 3, full: 7, custom: 10 };
-const YATRA_VALUES: YatraType[] = ["kartarpur", "nankana", "panja", "full", "custom"];
+
+// A stable, locale-independent default (slug/nights are the same in both
+// locales — only the display text differs).
+const DEFAULT_PACKAGE = ENGLISH_PACKAGES[0];
 
 const INITIAL: WizardState = {
   country: "", departureCity: "", travellers: 1,
-  yatra: "nankana", travelMonth: "", travelYear: String(CURRENT_YEAR), nights: 3,
+  yatra: DEFAULT_PACKAGE.slug, travelMonth: "", travelYear: String(CURRENT_YEAR), nights: DEFAULT_PACKAGE.suggestedNights,
   hotelStar: 4, roomType: "double",
   flights: false, visa: false, transfers: true,
   extraDestinations: "",
@@ -299,29 +304,27 @@ function StepGroup({ t, form, set, setTravellers }: StepProps & { setTravellers:
 
 function StepYatra({ t, locale, form, set }: StepProps) {
   const monthLabels = MONTH_LABELS[locale];
+  const packages = getPackages(locale);
   return (
     <div className="space-y-6">
       <StepHeading icon={MapPin} title={t.stepYatra.title} subtitle={t.stepYatra.subtitle} />
       <div className="grid gap-3">
-        {YATRA_VALUES.map((value) => {
-          const o = t.stepYatra.options[value];
-          return (
-            <button
-              key={value}
-              type="button"
-              onClick={() => { set("yatra", value); set("nights", YATRA_NIGHTS[value]); }}
-              className={`text-left rounded-2xl border-2 p-4 transition-all ${
-                form.yatra === value ? "border-accent bg-accent/5" : "border-border hover:border-accent/40"
-              }`}
-            >
-              <div className="flex items-center justify-between">
-                <span className="font-medium text-primary">{o.label}</span>
-                <span className="text-xs text-muted-foreground">{YATRA_NIGHTS[value]} {t.stepYatra.nightsSuggested}</span>
-              </div>
-              <p className="text-sm text-muted-foreground mt-1">{o.desc}</p>
-            </button>
-          );
-        })}
+        {packages.map((pkg) => (
+          <button
+            key={pkg.slug}
+            type="button"
+            onClick={() => { set("yatra", pkg.slug); set("nights", pkg.suggestedNights); }}
+            className={`text-left rounded-2xl border-2 p-4 transition-all ${
+              form.yatra === pkg.slug ? "border-accent bg-accent/5" : "border-border hover:border-accent/40"
+            }`}
+          >
+            <div className="flex items-center justify-between gap-3">
+              <span className="font-medium text-primary">{pkg.name}</span>
+              <span className="text-xs text-muted-foreground shrink-0">{pkg.suggestedNights} {t.stepYatra.nightsSuggested}</span>
+            </div>
+            <p className="text-sm text-muted-foreground mt-1">{pkg.tagline}</p>
+          </button>
+        ))}
       </div>
       <div className="grid sm:grid-cols-2 gap-4 pt-2">
         <Field label={t.stepYatra.travelMonth}>
@@ -478,7 +481,7 @@ function QuotePanel({ t, locale, quote, form }: { t: PlanContent; locale: Locale
   const { rates } = useExchangeRates();
   const fmt = (gbp: number) => formatConverted(gbp, currency, rates);
   const nightsDisplay = typeof form.nights === "number" ? form.nights : "–";
-  const yatraLabel = form.yatra ? t.stepYatra.options[form.yatra].label : "";
+  const yatraLabel = form.yatra ? (getPackage(locale, form.yatra)?.name ?? "") : "";
   const monthLabel = form.travelMonth ? (MONTH_LABELS[locale][form.travelMonth as keyof typeof MONTH_LABELS["en"]] ?? form.travelMonth) : "";
 
   return (
@@ -549,7 +552,7 @@ function Confirmation({ locale, ref_, form, quote }: { locale: Locale; ref_: str
   const t = PLAN[locale];
   const { currency } = useCurrency();
   const { rates } = useExchangeRates();
-  const yatraLabel = form.yatra ? t.stepYatra.options[form.yatra].label : form.yatra;
+  const yatraLabel = form.yatra ? (getPackage(locale, form.yatra)?.name ?? form.yatra) : form.yatra;
   const monthLabel = form.travelMonth ? (MONTH_LABELS[locale][form.travelMonth as keyof typeof MONTH_LABELS["en"]] ?? form.travelMonth) : form.travelMonth;
 
   return (

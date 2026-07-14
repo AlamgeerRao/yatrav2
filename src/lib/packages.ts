@@ -9,6 +9,8 @@ export interface TourPackage {
   name: string;
   tagline: string;
   duration: string;
+  /** Representative nights figure used to pre-fill the Plan Yatra wizard and to derive its per-night quote rate. */
+  suggestedNights: number;
   price: string;
   /** Base price in GBP used for live currency conversion. */
   priceFromGBP: number;
@@ -34,6 +36,7 @@ export const packages: TourPackage[] = [
     name: "Kartarpur Express",
     tagline: "A short, sacred journey for first-time pilgrims",
     duration: "3–4 Days",
+    suggestedNights: 4,
     price: "£650 – £950 / person",
     priceFromGBP: 650,
     priceToGBP: 950,
@@ -71,6 +74,7 @@ export const packages: TourPackage[] = [
     name: "Sikh Heritage of Punjab",
     tagline: "Our flagship pilgrimage across historic Punjab",
     duration: "7–10 Days",
+    suggestedNights: 7,
     price: "£1,350 – £2,200 / person",
     priceFromGBP: 1350,
     priceToGBP: 2200,
@@ -112,6 +116,7 @@ export const packages: TourPackage[] = [
     name: "Roots & Ancestry Tour",
     tagline: "Walk the lanes your grandparents called home",
     duration: "7–14 Days",
+    suggestedNights: 10,
     price: "£3,200 – £5,999 / private group",
     priceFromGBP: 3200,
     priceToGBP: 5999,
@@ -149,6 +154,7 @@ export const packages: TourPackage[] = [
     name: "Luxury Private Sikh Heritage Tour",
     tagline: "Fully bespoke, white-glove pilgrimage",
     duration: "Custom",
+    suggestedNights: 10,
     price: "£3,500+ / person",
     priceFromGBP: 3500,
     priceUnit: "/ person",
@@ -181,6 +187,7 @@ export const packages: TourPackage[] = [
     name: "Gurdwara Group Pilgrimage",
     tagline: "For sangat groups of 15 to 40 yatris",
     duration: "7–10 Days",
+    suggestedNights: 8,
     price: "£1,100 – £1,750 / person",
     priceFromGBP: 1100,
     priceToGBP: 1750,

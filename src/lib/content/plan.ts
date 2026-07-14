@@ -1,5 +1,5 @@
 import type { Locale } from "@/lib/i18n";
-import type { YatraType, RoomType } from "@/lib/quote";
+import type { RoomType } from "@/lib/quote";
 
 export interface PlanContent {
   meta: { title: string; description: string };
@@ -13,8 +13,6 @@ export interface PlanContent {
     nightsSuggested: string;
     travelMonth: string; selectMonth: string;
     year: string; selectYear: string;
-    duration: string;
-    options: Record<YatraType, { label: string; desc: string }>;
   };
 
   stepGroup: {
@@ -102,14 +100,6 @@ export const PLAN: Record<Locale, PlanContent> = {
       nightsSuggested: "nights suggested",
       travelMonth: "Travel month *", selectMonth: "Select month…",
       year: "Year *", selectYear: "Select year…",
-      duration: "Duration (nights) *",
-      options: {
-        kartarpur: { label: "Kartarpur Sahib", desc: "Short sacred trip to Guru Nanak's final resting place" },
-        nankana:   { label: "Nankana Sahib", desc: "Birthplace of Guru Nanak Dev Ji, 80km from Lahore" },
-        panja:     { label: "Panja Sahib", desc: "The sacred handprint at Hasan Abdal, near Islamabad" },
-        full:      { label: "Full Pakistan Yatra", desc: "All major gurdwaras — Nankana, Kartarpur, Panja, Lahore" },
-        custom:    { label: "Custom / Roots Tour", desc: "Ancestral village search + bespoke heritage circuit" },
-      },
     },
     stepGroup: {
       title: "Your Group", subtitle: "Tell us who's travelling so we can tailor the quote.",
@@ -198,14 +188,6 @@ export const PLAN: Record<Locale, PlanContent> = {
       nightsSuggested: "nuits suggérées",
       travelMonth: "Mois du voyage *", selectMonth: "Sélectionnez le mois…",
       year: "Année *", selectYear: "Sélectionnez l'année…",
-      duration: "Durée (nuits) *",
-      options: {
-        kartarpur: { label: "Kartarpur Sahib", desc: "Court voyage sacré vers le lieu de repos final de Guru Nanak" },
-        nankana:   { label: "Nankana Sahib", desc: "Lieu de naissance de Guru Nanak Dev Ji, à 80 km de Lahore" },
-        panja:     { label: "Panja Sahib", desc: "L'empreinte de main sacrée à Hasan Abdal, près d'Islamabad" },
-        full:      { label: "Yatra complète du Pakistan", desc: "Tous les principaux gurdwaras — Nankana, Kartarpur, Panja, Lahore" },
-        custom:    { label: "Circuit sur mesure / Racines", desc: "Recherche du village ancestral + circuit patrimonial sur mesure" },
-      },
     },
     stepGroup: {
       title: "Votre Groupe", subtitle: "Dites-nous qui voyage afin que nous puissions adapter le devis.",

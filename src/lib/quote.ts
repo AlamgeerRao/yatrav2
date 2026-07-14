@@ -1,17 +1,19 @@
-// All prices in GBP. Rates derived from existing packages to stay consistent.
+// All prices in GBP. The per-night base rate for each package is derived
+// directly from that package's own priceFromGBP ÷ suggestedNights (see
+// packages.ts) — so it always stays consistent with the price shown on the
+// Tours page, instead of being a separately hand-maintained table.
 
-export type YatraType = "kartarpur" | "nankana" | "panja" | "full" | "custom";
+import { packages, findPackage } from "./packages";
+
 export type HotelStar = 3 | 4 | 5;
 export type RoomType = "double" | "single" | "triple";
 
-/** Per-person per-night base rate for a 4★ double room, by yatra type. */
-const BASE_4STAR_PPN: Record<YatraType, number> = {
-  kartarpur: 200, // 4 nights × £200 = £800 → within Kartarpur Express range
-  nankana:   190,
-  panja:     190,
-  full:      193, // 7 nights × £193 = £1,351 → matches Sikh Heritage of Punjab floor
-  custom:    205,
-};
+/** Per-person per-night base rate for a 4★ double room, for a given package slug. */
+function basePPNForPackage(slug: string): number {
+  const pkg = findPackage(slug);
+  if (!pkg) return packages[0].priceFromGBP / packages[0].suggestedNights;
+  return pkg.priceFromGBP / pkg.suggestedNights;
+}
 
 /** Multiplier applied to base rate per hotel star. */
 const HOTEL_MULT: Record<HotelStar, number> = { 3: 0.82, 4: 1.0, 5: 1.28 };
@@ -37,7 +39,8 @@ const DISCOUNTS: Array<{ min: number; rate: number }> = [
 ];
 
 export interface QuoteInput {
-  yatra:      YatraType | "";
+  /** Package slug (see packages.ts), or "" if none chosen yet. */
+  yatra:      string;
   nights:     number;
   hotelStar:  HotelStar;
   roomType:   RoomType;
@@ -62,9 +65,9 @@ export interface QuoteResult {
 
 export function calculateQuote(q: QuoteInput): QuoteResult {
   const missing = !q.yatra || q.nights < 1 || q.travellers < 1;
-  const yatra = q.yatra || "full";
+  const slug = q.yatra || packages[0].slug;
 
-  const basePPN = BASE_4STAR_PPN[yatra] * HOTEL_MULT[q.hotelStar];
+  const basePPN = basePPNForPackage(slug) * HOTEL_MULT[q.hotelStar];
   const supplement = basePPN * ROOM_SUPPLEMENT[q.roomType];
   const effectivePPN = basePPN + supplement;
 
