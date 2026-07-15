@@ -35,9 +35,9 @@ export interface PlanContent {
 
   stepAddons: {
     title: string; subtitle: string;
-    flights: { label: string; desc: (price: number) => string };
-    visa: { label: string; desc: (price: number) => string };
-    transfers: { label: string; desc: (price: number) => string };
+    flights: { label: string; desc: (price: string) => string };
+    visa: { label: string; desc: (price: string) => string; countLabel: (count: number, total: number) => string };
+    transfers: { label: string; desc: (flatPrice: string, extraPrice: string) => string };
     extraDestinations: string; extraDestinationsPlaceholder: string;
   };
 
@@ -55,8 +55,9 @@ export interface PlanContent {
     base: (star: number, nights: string | number, pax: number) => string;
     singleSupplement: string; roomSharingSaving: string;
     flightsLine: (pax: number) => string;
-    visaLine: (pax: number) => string;
-    transfersLine: (pax: number) => string;
+    visaLine: (count: number) => string;
+    transfersBaseLine: string;
+    transfersExtraLine: (extraCount: number) => string;
     subtotal: string;
     groupDiscount: (pct: string, pax: number) => string;
     estimatedTotal: string; perPerson: string;
@@ -126,9 +127,16 @@ export const PLAN: Record<Locale, PlanContent> = {
     },
     stepAddons: {
       title: "Add-ons & Extras", subtitle: "Select any additional services you need.",
-      flights: { label: "International flights", desc: (p) => `Economy estimate included (+£${p}/person)` },
-      visa: { label: "Visa assistance", desc: (p) => `We prepare your invitation letter & docs (+£${p}/person)` },
-      transfers: { label: "Airport transfers", desc: (p) => `Private pickup & drop-off (+£${p}/person)` },
+      flights: { label: "International flights", desc: (p) => `Economy estimate included (+${p}/person)` },
+      visa: {
+        label: "Visa assistance",
+        desc: (p) => `We prepare your invitation letter & docs (${p}/person)`,
+        countLabel: (count, total) => `${count} of ${total} traveller${total === 1 ? "" : "s"} selected`,
+      },
+      transfers: {
+        label: "Airport transfers",
+        desc: (flat, extra) => `Private pickup & drop-off — flat ${flat} for up to 3 travellers, then +${extra} per additional traveller`,
+      },
       extraDestinations: "Extra destinations or sites (optional)",
       extraDestinationsPlaceholder: "e.g. Eminabad, Rohtas Fort, Islamabad sightseeing…",
     },
@@ -146,8 +154,9 @@ export const PLAN: Record<Locale, PlanContent> = {
       base: (star, nights, pax) => `Base (${star}★, ${nights} nights × ${pax} pax)`,
       singleSupplement: "Single supplement", roomSharingSaving: "Room sharing saving",
       flightsLine: (pax) => `Flights (${pax}×)`,
-      visaLine: (pax) => `Visa assistance (${pax}×)`,
-      transfersLine: (pax) => `Airport transfers (${pax}×)`,
+      visaLine: (count) => `Visa assistance (${count} traveller${count === 1 ? "" : "s"})`,
+      transfersBaseLine: "Airport transfers (up to 3 travellers)",
+      transfersExtraLine: (extraCount) => `+ ${extraCount} additional traveller${extraCount === 1 ? "" : "s"}`,
       subtotal: "Subtotal",
       groupDiscount: (pct, pax) => `Group discount (${pct}% · ${pax} travellers)`,
       estimatedTotal: "Estimated total", perPerson: "/ person",
@@ -214,9 +223,16 @@ export const PLAN: Record<Locale, PlanContent> = {
     },
     stepAddons: {
       title: "Options & Suppléments", subtitle: "Sélectionnez les services supplémentaires dont vous avez besoin.",
-      flights: { label: "Vols internationaux", desc: (p) => `Estimation classe économique incluse (+£${p}/personne)` },
-      visa: { label: "Assistance visa", desc: (p) => `Nous préparons votre lettre d'invitation et vos documents (+£${p}/personne)` },
-      transfers: { label: "Transferts aéroport", desc: (p) => `Prise en charge et dépose privées (+£${p}/personne)` },
+      flights: { label: "Vols internationaux", desc: (p) => `Estimation classe économique incluse (+${p}/personne)` },
+      visa: {
+        label: "Assistance visa",
+        desc: (p) => `Nous préparons votre lettre d'invitation et vos documents (${p}/personne)`,
+        countLabel: (count, total) => `${count} sur ${total} voyageur${total === 1 ? "" : "s"} sélectionné${total === 1 ? "" : "s"}`,
+      },
+      transfers: {
+        label: "Transferts aéroport",
+        desc: (flat, extra) => `Prise en charge et dépose privées — forfait de ${flat} pour jusqu'à 3 voyageurs, puis +${extra} par voyageur supplémentaire`,
+      },
       extraDestinations: "Destinations ou sites supplémentaires (facultatif)",
       extraDestinationsPlaceholder: "ex. Eminabad, Fort de Rohtas, visite d'Islamabad…",
     },
@@ -234,8 +250,9 @@ export const PLAN: Record<Locale, PlanContent> = {
       base: (star, nights, pax) => `Base (${star}★, ${nights} nuits × ${pax} pers.)`,
       singleSupplement: "Supplément single", roomSharingSaving: "Économie chambre partagée",
       flightsLine: (pax) => `Vols (${pax}×)`,
-      visaLine: (pax) => `Assistance visa (${pax}×)`,
-      transfersLine: (pax) => `Transferts aéroport (${pax}×)`,
+      visaLine: (count) => `Assistance visa (${count} voyageur${count === 1 ? "" : "s"})`,
+      transfersBaseLine: "Transferts aéroport (jusqu'à 3 voyageurs)",
+      transfersExtraLine: (extraCount) => `+ ${extraCount} voyageur${extraCount === 1 ? "" : "s"} supplémentaire${extraCount === 1 ? "" : "s"}`,
       subtotal: "Sous-total",
       groupDiscount: (pct, pax) => `Remise groupe (${pct} % · ${pax} voyageurs)`,
       estimatedTotal: "Total estimé", perPerson: "/ personne",

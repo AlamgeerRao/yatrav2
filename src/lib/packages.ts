@@ -20,6 +20,8 @@ export interface TourPackage {
   target: string;
   image: string;
   hotel: string;
+  /** Which hotel-star tiers this package actually offers — used to filter the Plan Yatra wizard's accommodation options so nobody can configure a tier the package doesn't sell. */
+  hotelStars: (3 | 4 | 5)[];
   transport: string;
   meals: string;
   comfort: string;
@@ -44,6 +46,7 @@ export const packages: TourPackage[] = [
     target: "First-time visitors, short spiritual trips, families",
     image: kartarpur,
     hotel: "4-star comfort hotels",
+    hotelStars: [4],
     transport: "Private AC vehicles with driver",
     meals: "Daily breakfast + select group meals",
     comfort: "Elderly-friendly itinerary, gentle pace",
@@ -82,6 +85,7 @@ export const packages: TourPackage[] = [
     target: "Main flagship group tour",
     image: nankana,
     hotel: "4 & 5-star heritage hotels",
+    hotelStars: [4, 5],
     transport: "Private luxury coaches",
     meals: "Full board — breakfast, lunch, dinner",
     comfort: "Small premium groups of 12–18",
@@ -124,6 +128,7 @@ export const packages: TourPackage[] = [
     target: "Families seeking ancestral villages and pre-partition roots",
     image: roots,
     hotel: "Boutique heritage + 5-star city hotels",
+    hotelStars: [4, 5],
     transport: "Private chauffeured SUVs",
     meals: "Full board, family-style",
     comfort: "Fully private, family-paced",
@@ -161,6 +166,7 @@ export const packages: TourPackage[] = [
     target: "High-end private travelers, families, VIP guests",
     image: panja,
     hotel: "5-star and palace hotels",
+    hotelStars: [5],
     transport: "Private luxury sedans / SUVs with security",
     meals: "Curated dining, private chef on request",
     comfort: "Fully private, fully bespoke",
@@ -195,6 +201,7 @@ export const packages: TourPackage[] = [
     target: "Gurdwara-led groups of 15–40 people",
     image: lahore,
     hotel: "4-star group hotels",
+    hotelStars: [4],
     transport: "Private luxury coaches",
     meals: "Full board with langar coordination",
     comfort: "Group-paced, jathedar support",

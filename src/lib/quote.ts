@@ -27,10 +27,15 @@ const ROOM_SUPPLEMENT: Record<RoomType, number> = {
 
 /** Fixed per-person add-ons in GBP. */
 export const ADDONS_GBP = {
-  flights:   300, // economy estimate
-  visa:       85, // assistance fee
-  transfers:  55, // airport transfers
+  flights: 300, // economy estimate
+  visa:     65, // assistance fee, per traveller who needs it
 };
+
+/** Airport transfers: one flat fee covers a small group's vehicles, then a
+ * small per-person top-up for each traveller beyond that. */
+export const TRANSFERS_FLAT_GBP = 70;
+export const TRANSFERS_FLAT_MAX_PAX = 3;
+export const TRANSFERS_PER_EXTRA_GBP = 8;
 
 /** Group discount thresholds. */
 const DISCOUNTS: Array<{ min: number; rate: number }> = [
@@ -46,7 +51,8 @@ export interface QuoteInput {
   roomType:   RoomType;
   travellers: number;
   flights:    boolean;
-  visa:       boolean;
+  /** How many travellers need visa assistance (0 to travellers). */
+  visaCount:  number;
   transfers:  boolean;
 }
 
@@ -54,7 +60,16 @@ export interface QuoteResult {
   basePerPersonPerNight: number; // before supplements
   baseTotal:    number; // base × nights × pax
   supplements:  number; // room supplement total
-  addons:       number; // flights + visa + transfers total
+  addons:       number; // flights + visa + transfers total combined
+  flightsTotal: number;
+  visaCount:    number; // clamped to [0, travellers]
+  visaTotal:    number;
+  /** 0 if transfers isn't selected, otherwise TRANSFERS_FLAT_GBP. */
+  transfersFlat:       number;
+  /** Travellers beyond the flat-fee threshold. */
+  transfersExtraCount: number;
+  transfersExtraTotal: number;
+  transfersTotal:      number; // transfersFlat + transfersExtraTotal
   subtotal:     number;
   discountRate: number; // 0, 0.05, or 0.07
   discountAmt:  number;
@@ -74,11 +89,17 @@ export function calculateQuote(q: QuoteInput): QuoteResult {
   const baseTotal   = effectivePPN * q.nights * q.travellers;
   const supplementsTotal = supplement * q.nights * q.travellers;
 
-  const addonsPerPerson =
-    (q.flights   ? ADDONS_GBP.flights   : 0) +
-    (q.visa      ? ADDONS_GBP.visa      : 0) +
-    (q.transfers ? ADDONS_GBP.transfers : 0);
-  const addonsTotal = addonsPerPerson * q.travellers;
+  const flightsTotal = q.flights ? ADDONS_GBP.flights * q.travellers : 0;
+
+  const visaCount = Math.max(0, Math.min(q.visaCount, q.travellers));
+  const visaTotal = visaCount * ADDONS_GBP.visa;
+
+  const transfersFlat = q.transfers ? TRANSFERS_FLAT_GBP : 0;
+  const transfersExtraCount = q.transfers ? Math.max(0, q.travellers - TRANSFERS_FLAT_MAX_PAX) : 0;
+  const transfersExtraTotal = transfersExtraCount * TRANSFERS_PER_EXTRA_GBP;
+  const transfersTotal = transfersFlat + transfersExtraTotal;
+
+  const addonsTotal = flightsTotal + visaTotal + transfersTotal;
 
   const subtotal = baseTotal + addonsTotal;
 
@@ -90,7 +111,14 @@ export function calculateQuote(q: QuoteInput): QuoteResult {
     basePerPersonPerNight: Math.round(basePPN),
     baseTotal:    Math.round(baseTotal),
     supplements:  Math.round(supplementsTotal),
-    addons:       addonsTotal,
+    addons:       Math.round(addonsTotal),
+    flightsTotal: Math.round(flightsTotal),
+    visaCount,
+    visaTotal:    Math.round(visaTotal),
+    transfersFlat:       Math.round(transfersFlat),
+    transfersExtraCount,
+    transfersExtraTotal: Math.round(transfersExtraTotal),
+    transfersTotal:      Math.round(transfersTotal),
     subtotal:     Math.round(subtotal),
     discountRate: rate,
     discountAmt,

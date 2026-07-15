@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { calculateQuote, ADDONS_GBP } from "@/lib/quote";
+import { calculateQuote, ADDONS_GBP, TRANSFERS_FLAT_GBP, TRANSFERS_PER_EXTRA_GBP } from "@/lib/quote";
 import type { HotelStar, RoomType } from "@/lib/quote";
 import { useCurrency, useExchangeRates, formatConverted } from "@/lib/currency";
 import { whatsappLink } from "@/lib/site";
@@ -33,7 +33,8 @@ interface WizardState {
   hotelStar: HotelStar;
   roomType: RoomType;
   flights: boolean;
-  visa: boolean;
+  /** How many travellers need visa assistance (0 to travellers). */
+  visaCount: number;
   transfers: boolean;
   extraDestinations: string;
   name: string;
@@ -56,7 +57,7 @@ const INITIAL: WizardState = {
   country: "", departureCity: "", travellers: 1,
   yatra: DEFAULT_PACKAGE.slug, travelMonth: "", travelYear: String(CURRENT_YEAR), nights: DEFAULT_PACKAGE.suggestedNights,
   hotelStar: 4, roomType: "double",
-  flights: false, visa: false, transfers: true,
+  flights: false, visaCount: 0, transfers: true,
   extraDestinations: "",
   name: "", email: "", phone: "", specialRequests: "",
 };
@@ -69,7 +70,8 @@ function initialStateFromQuery(): WizardState {
   const slug = new URLSearchParams(window.location.search).get("package");
   const pkg = slug ? ENGLISH_PACKAGES.find((p) => p.slug === slug) : undefined;
   if (!pkg) return INITIAL;
-  return { ...INITIAL, yatra: pkg.slug, nights: pkg.suggestedNights };
+  const hotelStar = pkg.hotelStars.includes(INITIAL.hotelStar) ? INITIAL.hotelStar : (pkg.hotelStars.includes(4) ? 4 : pkg.hotelStars[0]);
+  return { ...INITIAL, yatra: pkg.slug, nights: pkg.suggestedNights, hotelStar };
 }
 
 // ─── Main component ───────────────────────────────────────────────────────────
@@ -89,7 +91,7 @@ export function PlanWizardPage({ locale }: { locale: Locale }) {
   const setTravellers = (n: number) => {
     const clamped = Math.min(80, Math.max(1, n));
     const prev = form.travellers;
-    set("travellers", clamped);
+    setForm((f) => ({ ...f, travellers: clamped, visaCount: Math.min(f.visaCount, clamped) }));
     if (prev < 10 && clamped >= 10) {
       setDiscountBanner({ emoji: "🎊", msg: t.discountBanner.unlocked7 });
       setTimeout(() => setDiscountBanner(null), 4000);
@@ -108,9 +110,9 @@ export function PlanWizardPage({ locale }: { locale: Locale }) {
       yatra: form.yatra, nights,
       hotelStar: form.hotelStar, roomType: form.roomType,
       travellers: form.travellers,
-      flights: form.flights, visa: form.visa, transfers: form.transfers,
+      flights: form.flights, visaCount: form.visaCount, transfers: form.transfers,
     }),
-    [form.yatra, nights, form.hotelStar, form.roomType, form.travellers, form.flights, form.visa, form.transfers]
+    [form.yatra, nights, form.hotelStar, form.roomType, form.travellers, form.flights, form.visaCount, form.transfers]
   );
 
   const canNext = [
@@ -145,7 +147,7 @@ export function PlanWizardPage({ locale }: { locale: Locale }) {
   if (ref) return <Confirmation locale={locale} ref_={ref} form={form} quote={quote} />;
 
   return (
-    <div className="min-h-screen pt-20 pb-16 bg-cream">
+    <div className="min-h-screen pt-32 md:pt-44 pb-16 bg-cream">
 
       <AnimatePresence>
         {discountBanner && (
@@ -154,7 +156,7 @@ export function PlanWizardPage({ locale }: { locale: Locale }) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -60 }}
             transition={{ type: "spring", stiffness: 300, damping: 28 }}
-            className="fixed top-20 inset-x-0 z-50 flex justify-center pointer-events-none px-4"
+            className="fixed top-24 md:top-32 inset-x-0 z-50 flex justify-center pointer-events-none px-4"
           >
             <div className="inline-flex items-center gap-3 bg-primary text-cream rounded-full px-6 py-3.5 shadow-[var(--shadow-elevated)] text-sm font-medium">
               <span className="text-xl">{discountBanner.emoji}</span>
@@ -323,7 +325,13 @@ function StepYatra({ t, locale, form, set }: StepProps) {
           <button
             key={pkg.slug}
             type="button"
-            onClick={() => { set("yatra", pkg.slug); set("nights", pkg.suggestedNights); }}
+            onClick={() => {
+              set("yatra", pkg.slug);
+              set("nights", pkg.suggestedNights);
+              if (!pkg.hotelStars.includes(form.hotelStar)) {
+                set("hotelStar", pkg.hotelStars.includes(4) ? 4 : pkg.hotelStars[0]);
+              }
+            }}
             className={`text-left rounded-2xl border-2 p-4 transition-all ${
               form.yatra === pkg.slug ? "border-accent bg-accent/5" : "border-border hover:border-accent/40"
             }`}
@@ -363,14 +371,15 @@ function StepYatra({ t, locale, form, set }: StepProps) {
   );
 }
 
-function StepAccommodation({ t, form, set }: StepProps) {
-  const stars: HotelStar[] = [3, 4, 5];
+function StepAccommodation({ t, locale, form, set }: StepProps) {
+  const pkg = getPackage(locale, form.yatra);
+  const stars: HotelStar[] = pkg?.hotelStars ?? [3, 4, 5];
   const roomValues: RoomType[] = ["double", "single", "triple"];
   return (
     <div className="space-y-6">
       <StepHeading icon={Hotel} title={t.stepAccommodation.title} subtitle={t.stepAccommodation.subtitle} />
       <Field label={t.stepAccommodation.hotelStandard}>
-        <div className="grid grid-cols-3 gap-3">
+        <div className={`grid gap-3 ${stars.length === 1 ? "grid-cols-1" : stars.length === 2 ? "grid-cols-2" : "grid-cols-3"}`}>
           {stars.map((s) => (
             <button
               key={s}
@@ -414,35 +423,89 @@ function StepAccommodation({ t, form, set }: StepProps) {
 }
 
 function StepAddons({ t, form, set }: StepProps) {
+  const { currency } = useCurrency();
+  const { rates } = useExchangeRates();
+  const fmt = (gbp: number) => formatConverted(gbp, currency, rates);
+
+  const setVisaCount = (n: number) => set("visaCount", Math.max(0, Math.min(form.travellers, n)));
+
   return (
     <div className="space-y-6">
       <StepHeading icon={Plane} title={t.stepAddons.title} subtitle={t.stepAddons.subtitle} />
+
       <div className="grid gap-3">
-        {([
-          { key: "flights",   label: t.stepAddons.flights.label,   desc: t.stepAddons.flights.desc(ADDONS_GBP.flights) },
-          { key: "visa",      label: t.stepAddons.visa.label,      desc: t.stepAddons.visa.desc(ADDONS_GBP.visa) },
-          { key: "transfers", label: t.stepAddons.transfers.label, desc: t.stepAddons.transfers.desc(ADDONS_GBP.transfers) },
-        ] as const).map((item) => (
-          <button
-            key={item.key}
-            type="button"
-            onClick={() => set(item.key, !form[item.key])}
-            className={`text-left rounded-2xl border-2 p-4 transition-all flex items-start gap-4 ${
-              form[item.key] ? "border-accent bg-accent/5" : "border-border hover:border-accent/40"
-            }`}
-          >
-            <span className={`mt-0.5 size-5 rounded-full border-2 grid place-items-center shrink-0 ${
-              form[item.key] ? "border-accent bg-accent" : "border-border"
-            }`}>
-              {form[item.key] && <span className="text-white text-[10px]">✓</span>}
+        {/* Flights — simple toggle, applies to the whole group */}
+        <button
+          type="button"
+          onClick={() => set("flights", !form.flights)}
+          className={`text-left rounded-2xl border-2 p-4 transition-all flex items-start gap-4 ${
+            form.flights ? "border-accent bg-accent/5" : "border-border hover:border-accent/40"
+          }`}
+        >
+          <span className={`mt-0.5 size-5 rounded-full border-2 grid place-items-center shrink-0 ${
+            form.flights ? "border-accent bg-accent" : "border-border"
+          }`}>
+            {form.flights && <span className="text-white text-[10px]">✓</span>}
+          </span>
+          <div>
+            <div className="font-medium text-primary">{t.stepAddons.flights.label}</div>
+            <div className="text-sm text-muted-foreground">{t.stepAddons.flights.desc(fmt(ADDONS_GBP.flights))}</div>
+          </div>
+        </button>
+
+        {/* Visa assistance — not everyone in a group always needs it (some may already
+            hold a valid visa), so this is a count rather than an all-or-nothing toggle. */}
+        <div className={`rounded-2xl border-2 p-4 transition-all ${
+          form.visaCount > 0 ? "border-accent bg-accent/5" : "border-border"
+        }`}>
+          <div className="font-medium text-primary">{t.stepAddons.visa.label}</div>
+          <div className="text-sm text-muted-foreground">{t.stepAddons.visa.desc(fmt(ADDONS_GBP.visa))}</div>
+          <div className="mt-3 flex items-center gap-3 flex-wrap">
+            <button
+              type="button"
+              onClick={() => setVisaCount(form.visaCount - 1)}
+              disabled={form.visaCount <= 0}
+              className="size-8 rounded-full border border-border hover:bg-cream grid place-items-center text-primary disabled:opacity-40"
+            >
+              −
+            </button>
+            <span className="font-display text-xl text-primary w-8 text-center">{form.visaCount}</span>
+            <button
+              type="button"
+              onClick={() => setVisaCount(form.visaCount + 1)}
+              disabled={form.visaCount >= form.travellers}
+              className="size-8 rounded-full border border-border hover:bg-cream grid place-items-center text-primary disabled:opacity-40"
+            >
+              +
+            </button>
+            <span className="text-xs text-muted-foreground">
+              {t.stepAddons.visa.countLabel(form.visaCount, form.travellers)}
             </span>
-            <div>
-              <div className="font-medium text-primary">{item.label}</div>
-              <div className="text-sm text-muted-foreground">{item.desc}</div>
+          </div>
+        </div>
+
+        {/* Airport transfers — simple toggle; the flat + per-extra breakdown shows in the Live Quote panel */}
+        <button
+          type="button"
+          onClick={() => set("transfers", !form.transfers)}
+          className={`text-left rounded-2xl border-2 p-4 transition-all flex items-start gap-4 ${
+            form.transfers ? "border-accent bg-accent/5" : "border-border hover:border-accent/40"
+          }`}
+        >
+          <span className={`mt-0.5 size-5 rounded-full border-2 grid place-items-center shrink-0 ${
+            form.transfers ? "border-accent bg-accent" : "border-border"
+          }`}>
+            {form.transfers && <span className="text-white text-[10px]">✓</span>}
+          </span>
+          <div>
+            <div className="font-medium text-primary">{t.stepAddons.transfers.label}</div>
+            <div className="text-sm text-muted-foreground">
+              {t.stepAddons.transfers.desc(fmt(TRANSFERS_FLAT_GBP), fmt(TRANSFERS_PER_EXTRA_GBP))}
             </div>
-          </button>
-        ))}
+          </div>
+        </button>
       </div>
+
       <Field label={t.stepAddons.extraDestinations}>
         <input
           value={form.extraDestinations}
@@ -507,9 +570,12 @@ function QuotePanel({ t, locale, quote, form }: { t: PlanContent; locale: Locale
         {quote.supplements !== 0 && (
           <QuoteLine label={form.roomType === "single" ? t.quotePanel.singleSupplement : t.quotePanel.roomSharingSaving} value={`${quote.supplements > 0 ? "+" : ""}${fmt(quote.supplements)}`} muted />
         )}
-        {form.flights   && <QuoteLine label={t.quotePanel.flightsLine(form.travellers)}   value={`+${fmt(ADDONS_GBP.flights   * form.travellers)}`} muted />}
-        {form.visa      && <QuoteLine label={t.quotePanel.visaLine(form.travellers)} value={`+${fmt(ADDONS_GBP.visa  * form.travellers)}`} muted />}
-        {form.transfers && <QuoteLine label={t.quotePanel.transfersLine(form.travellers)} value={`+${fmt(ADDONS_GBP.transfers * form.travellers)}`} muted />}
+        {form.flights && <QuoteLine label={t.quotePanel.flightsLine(form.travellers)} value={`+${fmt(quote.flightsTotal)}`} muted />}
+        {quote.visaCount > 0 && <QuoteLine label={t.quotePanel.visaLine(quote.visaCount)} value={`+${fmt(quote.visaTotal)}`} muted />}
+        {form.transfers && <QuoteLine label={t.quotePanel.transfersBaseLine} value={`+${fmt(quote.transfersFlat)}`} muted />}
+        {quote.transfersExtraCount > 0 && (
+          <QuoteLine label={t.quotePanel.transfersExtraLine(quote.transfersExtraCount)} value={`+${fmt(quote.transfersExtraTotal)}`} muted />
+        )}
 
         <div className="border-t border-border pt-2 mt-2">
           <QuoteLine label={t.quotePanel.subtotal} value={fmt(quote.subtotal)} />
@@ -566,7 +632,7 @@ function Confirmation({ locale, ref_, form, quote }: { locale: Locale; ref_: str
   const monthLabel = form.travelMonth ? (MONTH_LABELS[locale][form.travelMonth as keyof typeof MONTH_LABELS["en"]] ?? form.travelMonth) : form.travelMonth;
 
   return (
-    <div className="min-h-screen pt-28 pb-16 bg-cream">
+    <div className="min-h-screen pt-32 md:pt-44 pb-16 bg-cream">
       <div className="mx-auto max-w-xl px-5 text-center">
         <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: "spring" }}>
           <CheckCircle2 className="size-16 text-accent mx-auto mb-6" />
